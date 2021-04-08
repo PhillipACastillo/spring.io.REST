@@ -1,6 +1,7 @@
 package com.springframework.payroll;
 
 import org.springframework.hateoas.EntityModel;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 public class OrderController {
@@ -13,9 +14,10 @@ public class OrderController {
         this.assembler = orderModelAssembler;
     }
 
+    @GetMapping("/orders/{id}")
     EntityModel<Order> one (@PathVariable Long id) {
         Order order = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException(id));
         return assembler.toModel(order);
     }
 }
