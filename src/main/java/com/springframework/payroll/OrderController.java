@@ -2,8 +2,10 @@ package com.springframework.payroll;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,5 +37,14 @@ public class OrderController {
         Order order = repository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
         return assembler.toModel(order);
+    }
+
+    ResponseEntity<EntityModel<Order>> newOrder (@RequestBody Order order) {
+        order.setStatus(Status.IN_PROGRESS);
+        Order savedOrder = repository.save(order);
+
+        return ResponseEntity.created(linkTo(methodOn(OrderController.class)
+                .one(savedOrder.getId())).toUri())
+                .body(assembler.toModel(savedOrder));
     }
 }

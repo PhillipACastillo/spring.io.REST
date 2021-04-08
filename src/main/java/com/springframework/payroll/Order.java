@@ -14,11 +14,11 @@ public class Order {
     @GeneratedValue
     private Long id;
     private String description;
-    private String status;
+    private Status status;
 
     public Order() {};
     // Don't include id, JPA will automatically assign one.
-    public Order(String description, String status) {
+    public Order(String description, Status status) {
         this.description = description;
         this.status = status;
     }
@@ -38,11 +38,11 @@ public class Order {
         this.description = description;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
