@@ -14,6 +14,8 @@ public class OrderModelAssembler
     public EntityModel<Order> toModel(Order entity) {
         return EntityModel.of(entity,
                 linkTo(methodOn(OrderController.class)
-                        .one(entity.getId())).withSelfRel());
+                        .one(entity.getId())).withSelfRel(),
+                linkTo(methodOn(OrderController.class).all())
+                        .withRel("orders"));
     }
 }
