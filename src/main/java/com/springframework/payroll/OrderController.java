@@ -1,10 +1,16 @@
 package com.springframework.payroll;
 
+import org.apache.coyote.Response;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.mediatype.problem.Problem;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -39,6 +45,7 @@ public class OrderController {
         return assembler.toModel(order);
     }
 
+    @PostMapping("/orders")
     ResponseEntity<EntityModel<Order>> newOrder (@RequestBody Order order) {
         order.setStatus(Status.IN_PROGRESS);
         Order savedOrder = repository.save(order);
@@ -46,5 +53,23 @@ public class OrderController {
         return ResponseEntity.created(linkTo(methodOn(OrderController.class)
                 .one(savedOrder.getId())).toUri())
                 .body(assembler.toModel(savedOrder));
+    }
+
+    ResponseEntity<?> cancel(Long id) {
+        Order order = repository.findById(id)
+            .orElseThrow(() -> new OrderNotFoundException(id));
+        if (order.getStatus() == Status.IN_PROGRESS) {
+            order.setStatus(Status.CANCELLED);
+            return ResponseEntity.ok(assembler.toModel(repository.save(order)));
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                .header(HttpHeaders.CONTENT_TYPE,
+                        MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE)
+                .body(Problem.create()
+                    .withTitle("Method not allowed")
+                    .withDetail("You can't cancel an order that is in the " +
+                        order.getStatus() + " status "));
     }
 }
