@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
+@RestController
 public class OrderController {
     private final OrderRepository repository;
     private final OrderModelAssembler assembler;
